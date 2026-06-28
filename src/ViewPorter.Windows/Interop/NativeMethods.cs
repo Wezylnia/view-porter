@@ -7,6 +7,7 @@ internal static class NativeMethods
     public const int MonitorDefaultToNearest = 2;
     public const int GwlStyle = -16;
     public const int GwlpHwndParent = -8;
+    public const int WmHotkey = 0x0312;
     public const int SwRestore = 9;
     public const int SwpNoZOrder = 0x0004;
     public const int SwpNoActivate = 0x0010;
@@ -14,6 +15,10 @@ internal static class NativeMethods
     public const int SwpAsyncWindowPos = 0x4000;
     public const int WsChild = unchecked((int)0x40000000);
     public const int WsVisible = 0x10000000;
+    public const uint ModAlt = 0x0001;
+    public const uint ModControl = 0x0002;
+    public const uint ModShift = 0x0004;
+    public const uint ModNoRepeat = 0x4000;
 
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -72,6 +77,14 @@ internal static class NativeMethods
 
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW", SetLastError = true)]
     public static extern nint GetWindowLongPtr(nint hWnd, int nIndex);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool RegisterHotKey(nint hWnd, int id, uint fsModifiers, uint vk);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool UnregisterHotKey(nint hWnd, int id);
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     public delegate bool MonitorEnumProc(nint hMonitor, nint hdcMonitor, nint lprcMonitor, nint dwData);

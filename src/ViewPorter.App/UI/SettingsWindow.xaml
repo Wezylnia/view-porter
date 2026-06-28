@@ -12,7 +12,17 @@
                  Text="ViewPorter" />
       <TextBlock Margin="0,12,0,0"
                  TextWrapping="Wrap"
-                 Text="Initial scaffold is in place. Next implementation steps are overlay windows, foreground window movement, hotkeys, and editable profile management." />
+                 Text="v0.1 prototype is active. The app can render a centered software viewport, move the foreground window into it, and disable everything instantly." />
+      <TextBlock Margin="0,16,0,0"
+                 FontWeight="SemiBold"
+                 Text="Hotkeys" />
+      <TextBlock Margin="0,8,0,0"
+                 Text="Ctrl+Alt+F9  Toggle viewport" />
+      <TextBlock Margin="0,4,0,0"
+                 Text="Ctrl+Alt+F10 Emergency disable" />
+      <TextBlock Margin="0,16,0,0"
+                 TextWrapping="Wrap"
+                 Text="This release targets windowed and borderless-windowed applications. Exclusive fullscreen is not supported." />
     </StackPanel>
   </Grid>
 </Window>
