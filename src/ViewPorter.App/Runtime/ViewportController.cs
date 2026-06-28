@@ -16,6 +16,7 @@ public sealed class ViewportController : IAsyncDisposable
     private readonly IWindowManager _windowManager;
     private readonly ViewportCalculator _calculator;
     private ViewportProfile? _selectedProfile;
+    private string _statusMessage = "Ready";
 
     public ViewportController(
         ProfileStore profileStore,
@@ -31,13 +32,20 @@ public sealed class ViewportController : IAsyncDisposable
         _calculator = calculator;
     }
 
+    public event EventHandler<ViewportStateChangedEventArgs>? StateChanged;
+
     public ViewportState State { get; private set; } = ViewportState.Disabled;
+
+    public string StatusMessage => _statusMessage;
+
+    public string ActiveProfileName => _selectedProfile?.Name ?? "No profile";
 
     public async Task InitializeAsync()
     {
         var settings = await _profileStore.LoadAsync();
         _selectedProfile = settings.Profiles.FirstOrDefault(profile => profile.Id == settings.SelectedProfileId)
             ?? settings.Profiles[0];
+        SetState(ViewportState.Disabled, $"Ready. Active profile: {ActiveProfileName}.");
     }
 
     public async Task EnableAsync(CancellationToken cancellationToken = default)
@@ -47,7 +55,7 @@ public sealed class ViewportController : IAsyncDisposable
             return;
         }
 
-        State = ViewportState.Enabling;
+        SetState(ViewportState.Enabling, $"Enabling {ActiveProfileName}...");
 
         try
         {
@@ -55,7 +63,7 @@ public sealed class ViewportController : IAsyncDisposable
             var monitor = SelectMonitor(monitors, _selectedProfile.MonitorSelection);
             if (monitor is null)
             {
-                State = ViewportState.Faulted;
+                SetState(ViewportState.Faulted, "No monitor was available for the selected profile.");
                 return;
             }
 
@@ -72,7 +80,7 @@ public sealed class ViewportController : IAsyncDisposable
 
             if (!result.IsSuccess || result.Plan is null)
             {
-                State = ViewportState.Faulted;
+                SetState(ViewportState.Faulted, string.Join(" ", result.Errors.DefaultIfEmpty("Could not calculate the viewport.")));
                 return;
             }
 
@@ -83,11 +91,11 @@ public sealed class ViewportController : IAsyncDisposable
                 await _windowManager.MoveForegroundWindowIntoViewportAsync(result.Plan.Viewport, cancellationToken);
             }
 
-            State = ViewportState.Enabled;
+            SetState(ViewportState.Enabled, $"Viewport enabled on {monitor.FriendlyName} with profile {ActiveProfileName}.");
         }
         catch
         {
-            State = ViewportState.Faulted;
+            SetState(ViewportState.Faulted, "ViewPorter failed while enabling the viewport.");
             throw;
         }
     }
@@ -99,12 +107,12 @@ public sealed class ViewportController : IAsyncDisposable
             return;
         }
 
-        State = ViewportState.Disabling;
+        SetState(ViewportState.Disabling, "Disabling viewport...");
 
         await _overlayManager.HideAsync(cancellationToken);
         await _windowManager.RestoreChangedWindowsAsync(cancellationToken);
 
-        State = ViewportState.Disabled;
+        SetState(ViewportState.Disabled, "Viewport disabled. Desktop restored.");
     }
 
     public async Task ToggleAsync(CancellationToken cancellationToken = default)
@@ -121,6 +129,17 @@ public sealed class ViewportController : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         await DisableAsync();
+    }
+
+    private void SetState(ViewportState state, string message)
+    {
+        State = state;
+        _statusMessage = message;
+        StateChanged?.Invoke(this, new ViewportStateChangedEventArgs
+        {
+            State = state,
+            Message = message
+        });
     }
 
     private static MonitorDescriptor? SelectMonitor(

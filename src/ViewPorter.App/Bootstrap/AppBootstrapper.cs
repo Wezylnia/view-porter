@@ -32,7 +32,7 @@ public sealed class AppBootstrapper : IAsyncDisposable
         var calculator = new ViewportCalculator();
 
         _viewportController = new ViewportController(profileStore, monitorService, overlayManager, windowManager, calculator);
-        _settingsWindow = new SettingsWindow();
+        _settingsWindow = new SettingsWindow(_viewportController);
         _trayIconController = new TrayIconController(_viewportController, _settingsWindow);
         _hotkeyService.HotkeyPressed += OnHotkeyPressed;
     }
@@ -42,6 +42,8 @@ public sealed class AppBootstrapper : IAsyncDisposable
         await _viewportController.InitializeAsync();
         _hotkeyService.RegisterDefaults();
         _trayIconController.Show();
+        _settingsWindow.Show();
+        _settingsWindow.Activate();
     }
 
     public async ValueTask DisposeAsync()

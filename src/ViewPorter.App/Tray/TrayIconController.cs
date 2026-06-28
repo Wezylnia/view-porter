@@ -23,11 +23,17 @@ public sealed class TrayIconController : IDisposable
             Visible = false,
             ContextMenuStrip = BuildMenu()
         };
+        _notifyIcon.DoubleClick += async (_, _) => await ShowSettingsAsync();
     }
 
     public void Show()
     {
         _notifyIcon.Visible = true;
+        _notifyIcon.ShowBalloonTip(
+            2500,
+            "ViewPorter is running",
+            "The main window is open. You can also return here from the tray icon later.",
+            ToolTipIcon.Info);
     }
 
     public void Dispose()
@@ -41,7 +47,7 @@ public sealed class TrayIconController : IDisposable
         var menu = new ContextMenuStrip();
         menu.Items.Add("Enable Viewport", null, async (_, _) => await RunOnUiAsync(() => _viewportController.EnableAsync()));
         menu.Items.Add("Disable Viewport", null, async (_, _) => await RunOnUiAsync(() => _viewportController.DisableAsync()));
-        menu.Items.Add("Settings", null, async (_, _) => await ShowSettingsAsync());
+        menu.Items.Add("Open ViewPorter", null, async (_, _) => await ShowSettingsAsync());
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Exit", null, async (_, _) => await RunOnUiAsync(ShutdownAsync));
         return menu;
