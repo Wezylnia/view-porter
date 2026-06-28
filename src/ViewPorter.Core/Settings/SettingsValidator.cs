@@ -4,12 +4,15 @@ namespace ViewPorter.Core.Settings;
 
 public sealed class SettingsValidator
 {
+    private const int DefaultViewportMargin = 160;
+
     public SettingsDocument Normalize(SettingsDocument? document)
     {
         var source = document ?? new SettingsDocument();
 
         var profiles = source.Profiles
             .Where(IsValidProfile)
+            .Select(NormalizeProfile)
             .ToArray();
 
         if (profiles.Length == 0)
@@ -23,7 +26,7 @@ public sealed class SettingsValidator
                     SizingMode = SizingMode.AspectFit,
                     AspectRatio = AspectRatio.Ratio16By9,
                     PixelSize = new Geometry.PixelSize(1920, 1080),
-                    InnerMargin = 0
+                    InnerMargin = DefaultViewportMargin
                 }
             ];
         }
@@ -47,4 +50,29 @@ public sealed class SettingsValidator
         !string.IsNullOrWhiteSpace(profile.Name) &&
         profile.AspectRatio.IsValid &&
         profile.InnerMargin >= 0;
+
+    private static ViewportProfile NormalizeProfile(ViewportProfile profile)
+    {
+        if (profile.Id == "default-16x9" &&
+            profile.SizingMode == SizingMode.AspectFit &&
+            profile.AspectRatio.Equals(AspectRatio.Ratio16By9) &&
+            profile.InnerMargin == 0)
+        {
+            return new ViewportProfile
+            {
+                Id = profile.Id,
+                Name = profile.Name,
+                MonitorSelection = profile.MonitorSelection,
+                SizingMode = profile.SizingMode,
+                AspectRatio = profile.AspectRatio,
+                PixelSize = profile.PixelSize,
+                TargetDiagonalInches = profile.TargetDiagonalInches,
+                BorderColorArgb = profile.BorderColorArgb,
+                MoveForegroundWindow = profile.MoveForegroundWindow,
+                InnerMargin = DefaultViewportMargin
+            };
+        }
+
+        return profile;
+    }
 }
