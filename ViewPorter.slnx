@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ViewPorter.App/ViewPorter.App.csproj" />
+    <Project Path="src/ViewPorter.Core/ViewPorter.Core.csproj" />
+    <Project Path="src/ViewPorter.Windows/ViewPorter.Windows.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ViewPorter.Core.Tests/ViewPorter.Core.Tests.csproj" />
+    <Project Path="tests/ViewPorter.Windows.Tests/ViewPorter.Windows.Tests.csproj" />
+  </Folder>
+</Solution>
