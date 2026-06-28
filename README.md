@@ -22,6 +22,69 @@ Current default hotkeys:
 - `Ctrl+Alt+F9`: toggle viewport
 - `Ctrl+Alt+F10`: emergency disable
 
+## How To Use
+
+### 1. Build and run
+
+```powershell
+dotnet build ViewPorter.slnx
+dotnet run --project src\ViewPorter.App\ViewPorter.App.csproj
+```
+
+When the app starts, it does not open a main window. It starts in the system tray.
+
+### 2. Find the tray icon
+
+Look for the `ViewPorter` icon in the Windows notification area.
+
+Right click the tray icon to open the menu:
+
+- `Enable Viewport`
+- `Disable Viewport`
+- `Settings`
+- `Exit`
+
+### 3. Enable the viewport
+
+Use either of these:
+
+- tray menu -> `Enable Viewport`
+- `Ctrl+Alt+F9`
+
+What happens on `v0.1`:
+
+- ViewPorter selects the active profile
+- the default profile is `Centered 16:9`
+- the target monitor is the primary monitor unless a saved monitor selection exists
+- black borders are drawn around the centered viewport
+- the current foreground window is moved into that viewport if ViewPorter considers it safe to move
+
+### 4. Disable or recover
+
+Use either of these:
+
+- tray menu -> `Disable Viewport`
+- `Ctrl+Alt+F10` for emergency disable
+
+Emergency disable is the escape hatch. It hides overlays and attempts to restore any window ViewPorter changed during the current session.
+
+### 5. Settings and saved state
+
+The current settings window is minimal. `v0.1` does not yet provide full profile editing from the UI.
+
+Settings are stored locally here:
+
+`%LocalAppData%\ViewPorter\settings.json`
+
+On first run, ViewPorter creates a default profile automatically. If the settings file becomes invalid JSON, ViewPorter quarantines it and regenerates a clean default file.
+
+## What To Expect In v0.1
+
+- Best results are with normal desktop apps and borderless-windowed apps.
+- Some windows will be ignored on purpose if they look unsafe to manipulate.
+- Exclusive fullscreen apps are not supported.
+- There is no polished onboarding flow yet. The tray icon and hotkeys are the main control surface.
+
 ## Current Scope
 
 - aspect-fit and pixel-sized viewport foundation
